@@ -68,7 +68,12 @@ class Defender(commands.Cog, name="Defender"):
     # Send to the summarise function from openai lib
     summary = self.gpt.summerize_converstaion(summarymessages)
     
-    await ctx.message.reply(summary) 
+    await ctx.message.reply(summary)
+    
+  @commands.command("askgpt")
+  async def gpt(self, ctx: Context, *, prompt: str):
+        response = self.gpt.ask_gpt(prompt)
+        await ctx.reply(response)
     
 async def setup(client: ChatDefender):
   await client.add_cog(Defender(client))

@@ -48,21 +48,20 @@ class Gpt:
   
     return completion.choices[0].message.content
   
-  def ask_gpt(self, user_input: str, system_input: str = "You are a helpful assistant."):
+  def ask_gpt(self, user_input: str):
     """
     Asks GPT-3.5 a question and returns the response.
 
     Args:
         user_input: The prompt to be sent to ChatGPT.
-        system_input (optional): The system message helps set the behavior of the assistant. For example, you can modify the personality of the assistant or provide specific instructions about how it should behave throughout the conversation. However note that the system message is optional and the model's behavior without a system message is likely to be similar to using a generic message such as "You are a helpful assistant.".
-
+        
     Returns:
         str: The response from GPT-3.5
     """
     completion = self.client.chat.completions.create(
       model="gpt-3.5-turbo",
       messages=[
-        {"role": "system", "content": system_input},
+        {"role": "system", "content": "You are a helpful assistant."},
         {"role": "user", "content": user_input}
       ]
     )
