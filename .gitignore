@@ -1,2 +1,8 @@
 .env
 openai-env
+.venv
+
+**/__pycache__
+
+*.db
+
