@@ -6,3 +6,5 @@ openai-env
 
 *.db
 **/setup.py
+
+setup.py
