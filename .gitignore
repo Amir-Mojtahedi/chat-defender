@@ -5,4 +5,4 @@ openai-env
 **/__pycache__
 
 *.db
-bot/setup.py
+**/setup.py
