@@ -6,3 +6,6 @@ openai-env
 
 *.db
 **/setup.py
+**/**.DS_Store
+
+**.db-journal
