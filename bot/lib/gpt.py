@@ -47,3 +47,44 @@ class Gpt:
     )
   
     return completion.choices[0].message.content
+  
+  def ask_gpt(self, user_input: str):
+    """
+    Asks GPT-3.5 a question and returns the response.
+
+    Args:
+        user_input: The prompt to be sent to ChatGPT.
+        
+    Returns:
+        str: The response from GPT-3.5
+    """
+    completion = self.client.chat.completions.create(
+      model="gpt-3.5-turbo",
+      messages=[
+        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "user", "content": user_input}
+      ]
+    )
+  
+    return completion.choices[0].message.content
+  
+  def grammar_check(self, text: str):
+    """
+    Checks the grammar of the provided text.
+
+    Args:
+        text: The text to be checked.
+
+    Returns:
+        str: The corrected text.
+    """
+    completion = self.client.chat.completions.create(
+      model="gpt-3.5-turbo",
+      messages=[
+        {"role": "system",
+         "content": "You are a grammar/vocabulary/spell checker. Please correct any grammar or vocabulary mistakes in the text. As an example, if the text is 'I is happy', you should correct it to 'I am happy'. Make sure to not change the meaning of the text. In case the text is already correct, you can reply with 'No grammar issue found'. Keep in mind that the text might be in different languages, so you should be able to correct grammar in different languages."},
+        {"role": "user", "content": text}
+      ]
+    )
+  
+    return completion.choices[0].message.content
