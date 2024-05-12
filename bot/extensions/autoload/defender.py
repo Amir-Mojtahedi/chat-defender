@@ -42,6 +42,8 @@ class Defender(commands.Cog, name="Defender"):
     # If there is hate speech then simply delete it
     if (hate_speech):
       await message.delete()
+      await message.channel.send(f"{message.author.mention} your message was deleted because it contained hate speech.")
+      
   
     # If there isnt then do nothing.
 
@@ -74,6 +76,11 @@ class Defender(commands.Cog, name="Defender"):
   async def gpt(self, ctx: Context, *, prompt: str):
         response = self.gpt.ask_gpt(prompt)
         await ctx.reply(response)
+  
+  @commands.command("check-grammar")
+  async def grammar_check(self, ctx: Context, *, text: str):
+    response = self.gpt.grammar_check(text)
+    await ctx.send(response)
     
 async def setup(client: ChatDefender):
   await client.add_cog(Defender(client))
