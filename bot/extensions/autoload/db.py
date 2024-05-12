@@ -12,6 +12,10 @@ CREATE TABLE IF NOT EXISTS Config (
 CREATE TABLE IF NOT EXISTS FilteredChannels(
 	channel_id TEXT PRIMARY KEY
 );
+
+CREATE TABLE IF NOT EXISTS TranslationChannels(
+	channel_id TEXT PRIMARY KEY
+);
 """
 
 
@@ -32,7 +36,7 @@ async def setup(client: ChatDefender):
     tables = cursor.fetchall()
     tables = [x[0] for x in tables]
     print(tables)
-    if 'Config' not in tables or 'FilteredChannels' not in tables:
+    if 'Config' not in tables or 'FilteredChannels' not in tables or 'TranslationChannels' not in tables:
       print("DB IS MISCONFIGURED")
       sys.exit()  
       
