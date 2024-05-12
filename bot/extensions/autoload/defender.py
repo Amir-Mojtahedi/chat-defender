@@ -18,6 +18,19 @@ class Defender(commands.Cog, name="Defender"):
     self.translation_channels = []
     self._build_cache()
     
+  async def _send_channel_webhook(self, message: Message, content):
+    webhook = None
+    try:
+      webhooks = await message.channel.webhooks()
+      if len(webhooks) > 0:
+        webhook = webhooks[0]
+      else:
+        raise Exception("No webhooks")
+    except:
+      webhook = await message.channel.create_webhook(name="chatdefender")
+    
+    await webhook.send(content, username=message.author.name, avatar_url=message.author.display_avatar)   
+    
     
   def _build_cache(self):
     
@@ -116,14 +129,13 @@ class Defender(commands.Cog, name="Defender"):
       if text_to_translate != "No grammar issue found.":
         isEnglish, translation = self.gpt.translate_text(text_to_translate)
       else:
-         isEnglish, translation = self.gpt.translate_text(message.content)
+        isEnglish, translation = self.gpt.translate_text(message.content)
       if(not isEnglish):
         await message.delete()
-        await message.channel.send(message.author.display_name + ": " + translation)
+        await self._send_channel_webhook(message, translation)  
         
     return
       
-
   @commands.command("fallacies", brief="Detect fallacies", help="Detect fallacies in the conversation")
   async def detect_fallacy_command(self, ctx: Context):
     # get all the messages in the channel
