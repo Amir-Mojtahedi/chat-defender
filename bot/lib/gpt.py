@@ -1,3 +1,4 @@
+import json
 from openai import OpenAI
 
 class Gpt:
@@ -18,15 +19,19 @@ class Gpt:
     """
     completion = self.client.chat.completions.create(
       model="gpt-3.5-turbo",
+      response_format={ "type": "json_object" },
       messages=[
-        {"role": "system", "content": "You are a hate speech detector, for everything i say to you, please reply \"True\" if you would consider what i am saying hate speech or reply \"False\" in any other case. Ensure to take into consideration the overall feeling of the message. As an example, \"I love you my dumb little cutie\" is not hate speech even though the word dumb is used in it since the overall feeling is positive."},
+        {"role": "system", "content": "You are a hate speech detector, for everything i say to you, please reply with a JSON with 2 keys: \"verdict\" and \"justification\". Verdict should be  \"True\" if you would consider what i am saying hate speech or \"False\" in any other case. Justification should be the reason behind why the message was considered hateful, or empty if the message is not hateful. Ensure to take into consideration the overall feeling of the message. As an example, \"I love you my dumb little cutie\" is not hate speech even though the word dumb is used in it since the overall feeling is positive."},
         {"role": "user", "content": text}
       ]
     )
-    if completion.choices[0].message.content == "True":
-        return True
-    else:
-        return False
+    # Parse the JSON string
+    data = json.loads(completion.choices[0].message.content)
+
+    # Get the value of the "verdict" key
+    verdict = data["verdict"]
+    justification = data["justification"]
+    return verdict, justification
       
   def summerize_converstaion(self, messages: str):
     """
@@ -83,6 +88,26 @@ class Gpt:
       messages=[
         {"role": "system",
          "content": "You are a grammar/vocabulary/spell checker. Please correct any grammar or vocabulary mistakes in the text. As an example, if the text is 'I is happy', you should correct it to 'I am happy'. Make sure to not change the meaning of the text. In case the text is already correct, you can reply with 'No grammar issue found'. Keep in mind that the text might be in different languages, so you should be able to correct grammar in different languages."},
+        {"role": "user", "content": text}
+      ]
+    )
+  
+    return completion.choices[0].message.content
+  
+  def translate_text(self, text: str):
+    """
+    Translates the provided text to English.
+
+    Args:
+        text: The text to be translated.
+
+    Returns:
+        str: The translated text.
+    """
+    completion = self.client.chat.completions.create(
+      model="gpt-3.5-turbo",
+      messages=[
+        {"role": "system", "content": "You are a translator. Please translate the text to English."},
         {"role": "user", "content": text}
       ]
     )

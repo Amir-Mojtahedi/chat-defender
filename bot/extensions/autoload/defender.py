@@ -15,6 +15,7 @@ class Defender(commands.Cog, name="Defender"):
     self.gpt : Gpt = Gpt()
     # Get all the channels that are setup for chat filtering from the database
     self.filter_channels = []
+    self.translation_channels = []
     self._build_cache()
     
     
@@ -24,12 +25,19 @@ class Defender(commands.Cog, name="Defender"):
       
     # Get all the saved channels that we're filtereing
     query = "SELECT channel_id from FilteredChannels"
+    translation_query = "SELECT channel_id from TranslationChannels"
     
     # excecute
     cursor.execute(query)    
 
     channels = cursor.fetchall()
     self.filter_channels = [int(x[0]) for x in channels]
+    
+    # excecute
+    cursor.execute(translation_query)    
+
+    channels = cursor.fetchall()
+    self.translation_channels = [int(x[0]) for x in channels]
   
     return
   
@@ -42,6 +50,11 @@ class Defender(commands.Cog, name="Defender"):
     cursor.execute(query)
     self.filter_channels.remove(channel_id)
     
+    translation_query = f"DELETE FROM TranslationChannels WHERE channel_id = {channel_id}"
+    
+    cursor.execute(translation_query)
+    self.translation_channels.remove(channel_id)
+    
     return
     
   def _append_cache(self, channel_id):
@@ -53,11 +66,16 @@ class Defender(commands.Cog, name="Defender"):
     cursor.execute(query)
     self.filter_channels.append(channel_id)
     
+    translation_query = f"INSERT INTO TranslationChannels (channel_id) VALUES ('{channel_id}')"
+    
+    cursor.execute(translation_query)
+    self.translation_channels.append(channel_id)
+    
     return
     
   # Returns true if the content should be filtered and false if it should not.
   def content_filter(self, message):
-    return self.gpt.is_hate_speech(message)
+    verdict, justification = self.gpt.is_hate_speech(message)
     
   @commands.Cog.listener()
   async def on_message(self, message: Message):
@@ -68,8 +86,13 @@ class Defender(commands.Cog, name="Defender"):
     
     # Ignore if the message author is a bot user. 
     if message.author.bot:
-      
-      return  
+      return
+    
+    if message.channel.id in self.translation_channels:
+      # Translate the message
+      translated_message = self.gpt.translate_text(message.content) 
+      await message.delete()
+      await message.channel.send(translated_message) 
   
     # Check the message content for hate speech
     hate_speech = self.content_filter(message.content)
@@ -129,6 +152,21 @@ class Defender(commands.Cog, name="Defender"):
     else:
       self._append_cache(channel_id)
       await ctx.reply('channel is now being filtered')
+  
+    return
+  
+  @commands.command("toggletranslate")
+  async def toggle_translate(self, ctx: Context):
+    
+    channel_id = ctx.channel.id
+    
+    if channel_id in self.translation_channels:
+      self._remove_cache(channel_id)
+      await ctx.reply('channel is no longer being translated')
+      
+    else:
+      self._append_cache(channel_id)
+      await ctx.reply('channel is now being translated')
   
     return
      
