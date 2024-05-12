@@ -125,9 +125,19 @@ class Defender(commands.Cog, name="Defender"):
     summarymessages: list[Message] = []
     totalchars = 0
     
+    previous_msg = None
     async for msg in channelmessages:
+      
+      # should skip bot messages and command messages
+      if msg.author.bot or msg.clean_content.startswith('?'):
+        continue
       totalchars += len(msg.clean_content)
-      summarymessages.append(msg)
+
+      # concatenates messages that were sent by the same author many times in a row
+      if previous_msg and previous_msg.author.id == msg.author.id:
+        summarymessages[len(summarymessages) - 1] = summarymessages[len(summarymessages) - 1] + ". " + msg
+      else:
+        summarymessages.append(msg)
     
       if (totalchars >= 4000):
         break
