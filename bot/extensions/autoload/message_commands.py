@@ -11,9 +11,11 @@ async def fact_check(interaction, message: discord.Message):
 async def translate(interaction: discord.Interaction, message: discord.Message):
   
   # get the translation from the function
-  translation = interaction.client.gpt.translate_text(message.content)
-  
-  await interaction.response.send_message(ephemeral=True, content=translation)
+  isEnglish, translation = interaction.client.gpt.translate_text(message.content)
+  if isEnglish == "False":
+    await interaction.response.send_message(ephemeral=True, content=translation)
+  else:
+    await interaction.response.send_message(ephemeral=True, content="The message is already in English. No translation needed.")
 
 async def grammar_check(interaction: discord.Interaction, message: discord.Message):
   

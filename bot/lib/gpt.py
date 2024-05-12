@@ -129,13 +129,19 @@ class Gpt:
     """
     completion = self.client.chat.completions.create(
       model="gpt-3.5-turbo",
+      response_format={ "type": "json_object" },
       messages=[
-        {"role": "system", "content": "if the following contains any words that aren't in english, translate them to english. As an example, if I say 'What a lovely nuit', you should say 'What a lovely night', and if the sentence is already in english, you should just repeat it back to me."},
+        {"role": "system", "content": "You are a translator. If the phrase given to you contains non-English words, translate those words and return a JSON with two keys: the first key is isEnglish and evaluates to False and the second key is the translation and evaluates to the translated phrase. As an example, if I say 'What a lovely nuit', you should say return: \{isEnglish:False, translation: what a lovely night\}, and if the sentence is already in English, you put nothing in the translation key and True in isEnglish."},
         {"role": "user", "content": text}
       ]
     )
     
-    return completion.choices[0].message.content
+    # Parse the JSON string
+    data = json.loads(completion.choices[0].message.content)
+    isEnglish = data.get("isEnglish")
+    translation = data.get("translation")
+
+    return isEnglish, translation
   
   def fact_check(self, text: str):
     """
