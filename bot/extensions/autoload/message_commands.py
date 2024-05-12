@@ -49,4 +49,4 @@ async def setup(client):
   client.tree.add_command(translate_cmd)
   client.tree.add_command(fact_check_cmd)
   client.tree.add_command(grammar_check_cmd)
-  
+  client.tree.add_command(hello_context_command)

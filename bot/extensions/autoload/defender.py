@@ -14,8 +14,8 @@ class Defender(commands.Cog, name="Defender"):
     self.client : ChatDefender = client
     self.gpt : Gpt = client.gpt
     # Get all the channels that are setup for chat filtering from the database
-    self.filter_channels = []
-    self.translation_channels = []
+    self.disabled_filter_channels = []
+    self.disabled_translation_channels = []
     self._build_cache()
     
     
@@ -24,6 +24,7 @@ class Defender(commands.Cog, name="Defender"):
     cursor = self.client.db.cursor()
       
     # Get all the saved channels that we're filtereing
+    # I didn't update the name of the tables coz lazy (its 4PM bro)
     query = "SELECT channel_id from FilteredChannels"
     translation_query = "SELECT channel_id from TranslationChannels"
     
@@ -31,7 +32,7 @@ class Defender(commands.Cog, name="Defender"):
     cursor.execute(query)    
 
     channels = cursor.fetchall()
-    self.filter_channels = [int(x[0]) for x in channels]
+    self.disabled_filter_channels = [int(x[0]) for x in channels]
     
     # excecute
     cursor.execute(translation_query)    
@@ -48,7 +49,7 @@ class Defender(commands.Cog, name="Defender"):
     query = f"DELETE FROM FilteredChannels WHERE channel_id = {channel_id}"
     
     cursor.execute(query)
-    self.filter_channels.remove(channel_id)
+    self.disabled_filter_channels.remove(channel_id)
 
     return
     
@@ -69,7 +70,7 @@ class Defender(commands.Cog, name="Defender"):
     query = f"INSERT INTO FilteredChannels (channel_id) VALUES ('{channel_id}')"
     
     cursor.execute(query)
-    self.filter_channels.append(channel_id)
+    self.disabled_filter_channels.append(channel_id)
     
     return
   
@@ -97,7 +98,7 @@ class Defender(commands.Cog, name="Defender"):
       return
     
     # Check if the channel is in the filter list.
-    if message.channel.id in self.filter_channels:
+    if message.channel.id not in self.disabled_filter_channels:
 
       # Check the message content for hate speech
       verdict, justification = self.content_filter(message.content)
@@ -188,13 +189,13 @@ class Defender(commands.Cog, name="Defender"):
     
     channel_id = ctx.channel.id
     
-    if channel_id in self.filter_channels:
+    if channel_id in self.disabled_filter_channels:
       self._remove_cache(channel_id)
-      await ctx.reply('channel is no longer being filtered')
+      await ctx.reply('channel is now being filtered')
       
     else:
       self._append_cache(channel_id)
-      await ctx.reply('channel is now being filtered')
+      await ctx.reply('channel is no longer being filtered')
   
     return
   
