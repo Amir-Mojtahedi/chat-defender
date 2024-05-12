@@ -12,7 +12,7 @@ class Defender(commands.Cog, name="Defender"):
   
   def __init__(self, client):
     self.client : ChatDefender = client
-    self.gpt : Gpt = Gpt()
+    self.gpt : Gpt = client.gpt
     # Get all the channels that are setup for chat filtering from the database
     self.filter_channels = []
     self._build_cache()
