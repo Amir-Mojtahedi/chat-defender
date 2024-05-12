@@ -82,6 +82,27 @@ class Defender(commands.Cog, name="Defender"):
   
     # If there isnt then do nothing.
 
+  @commands.command("fallacies")
+  async def detect_fallacy_command(self, ctx: Context):
+    # get all the messages in the channel
+    channelmessages = ctx.channel.history(limit=100)
+    summarymessages: list[Message] = []
+    totalchars = 0
+    
+    async for msg in channelmessages:
+      totalchars += len(msg.clean_content)
+      summarymessages.append(msg)
+    
+      if (totalchars >= 1000):
+        break
+  
+    summarymessages = [f"{x.author.display_name}: {x.clean_content} [{x.created_at}]" for x in summarymessages][::-1]
+    summarymessages = "\n".join(summarymessages)
+    
+    # Send to the summarise function from openai lib
+    summary = self.gpt.detect_fallacy(summarymessages)
+    await ctx.message.reply(summary)
+
   @commands.command("summarize")
   async def summary_command(self, ctx: Context):
   
