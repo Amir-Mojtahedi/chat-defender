@@ -97,7 +97,7 @@ class Defender(commands.Cog, name="Defender"):
       return
     
     # Check if the channel is in the filter list.
-    if message.channel.id in self.filter_channels:
+    if message.channel.id not in self.filter_channels:
 
       # Check the message content for hate speech
       verdict, justification = self.content_filter(message.content)
@@ -115,6 +115,8 @@ class Defender(commands.Cog, name="Defender"):
       if(translated_message != message.content):
         await message.delete()
         await message.channel.send(message.author.display_name + ": " +translated_message)
+        
+    return
       
 
   @commands.command("fallacies", brief="Detect fallacies", help="Detect fallacies in the conversation")
@@ -190,11 +192,11 @@ class Defender(commands.Cog, name="Defender"):
     
     if channel_id in self.filter_channels:
       self._remove_cache(channel_id)
-      await ctx.reply('channel is no longer being filtered')
+      await ctx.reply('channel is now being filtered')
       
     else:
       self._append_cache(channel_id)
-      await ctx.reply('channel is now being filtered')
+      await ctx.reply('channel is no longer being filtered')
   
     return
   

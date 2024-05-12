@@ -1,9 +1,6 @@
 from discord import app_commands
 import discord
 
-async def hello_world(interaction, message: discord.Message):
-  await interaction.response.send_message('hello world')
-
 async def fact_check(interaction, message: discord.Message):
   
   # Send the message to the fact checker function
@@ -14,7 +11,7 @@ async def fact_check(interaction, message: discord.Message):
 async def translate(interaction: discord.Interaction, message: discord.Message):
   
   # get the translation from the function
-  translation = 'translate function'
+  translation = interaction.client.gpt.translate_text(message.content)
   
   await interaction.response.send_message(ephemeral=True, content=translation)
 
@@ -25,11 +22,6 @@ async def grammar_check(interaction: discord.Interaction, message: discord.Messa
   await interaction.response.send_message(ephemeral=True, content=grammar)
 
 async def setup(client):
-  
-  hello_context_command = app_commands.ContextMenu(
-    name="hello world",
-    callback=hello_world
-  )
   
   fact_check_cmd = app_commands.ContextMenu(
     name="Fact Check",
