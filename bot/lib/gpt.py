@@ -130,9 +130,9 @@ class Gpt:
     completion = self.client.chat.completions.create(
       model="gpt-3.5-turbo",
       messages=[
-        {"role": "system", "content": "You are a translator. Please translate the text to English."},
+        {"role": "system", "content": "if the following contains any words that aren't in english, translate them to english. As an example, if I say 'What a lovely nuit', you should say 'What a lovely night', and if the sentence is already in english, you should just repeat it back to me."},
         {"role": "user", "content": text}
       ]
     )
-  
+    
     return completion.choices[0].message.content

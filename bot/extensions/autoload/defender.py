@@ -92,31 +92,30 @@ class Defender(commands.Cog, name="Defender"):
   @commands.Cog.listener()
   async def on_message(self, message: Message):
 
-    # Check if the channel is in the filter list.
-    if message.channel.id not in self.filter_channels:
-      return
-    
     # Ignore if the message author is a bot user. 
     if message.author.bot:
       return
     
+    # Check if the channel is in the filter list.
+    if message.channel.id in self.filter_channels:
+
+      # Check the message content for hate speech
+      verdict, justification = self.content_filter(message.content)
+
+      # If there is hate speech then simply delete it
+      if (verdict == 'True'):
+        await message.delete()
+        mention = message.author.mention  # Mention the person who sent the message
+        await message.channel.send(content=f"{mention}, {justification}")
+        return
+    
     if message.channel.id in self.translation_channels:
       # Translate the message
       translated_message = self.gpt.translate_text(message.content) 
-      await message.delete()
-      await message.channel.send(translated_message) 
-  
-    # Check the message content for hate speech
-    verdict, justification = self.content_filter(message.content)
-
-    # If there is hate speech then simply delete it
-    if (verdict == 'True'):
-      await message.delete()
-      mention = message.author.mention  # Mention the person who sent the message
-      await message.channel.send(content=f"{mention}, {justification}")
+      if(translated_message != message.content):
+        await message.delete()
+        await message.channel.send(message.author.display_name + ": " +translated_message)
       
-  
-    # If there isnt then do nothing.
 
   @commands.command("fallacies")
   async def detect_fallacy_command(self, ctx: Context):
@@ -180,7 +179,7 @@ class Defender(commands.Cog, name="Defender"):
         await ctx.reply(response)
   
   @commands.command("check-grammar")
-  async def grammar_check(self, ctx: Context, *, text: str):
+  async def grammar_check(self, ctx: Context, *, text: str = ""):
     response = self.gpt.grammar_check(text)
     await ctx.send(response)
     
