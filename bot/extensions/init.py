@@ -29,6 +29,8 @@ async def setup(client: ChatDefender):
 
     await client.load_extension('jishaku')
     
+    await client.tree.sync()
+    
     print(f'\nLogged in as {client.user}')
     print('ready')
     
