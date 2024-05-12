@@ -111,10 +111,15 @@ class Defender(commands.Cog, name="Defender"):
     
     if message.channel.id in self.translation_channels:
       # Translate the message
-      translated_message = self.gpt.translate_text(message.content) 
-      if(translated_message != message.content):
+      isEnglish, translation = None, None
+      text_to_translate = self.gpt.grammar_check(message.content)
+      if text_to_translate != "No grammar issue found.":
+        isEnglish, translation = self.gpt.translate_text(text_to_translate)
+      else:
+         isEnglish, translation = self.gpt.translate_text(message.content)
+      if(not isEnglish):
         await message.delete()
-        await message.channel.send(message.author.display_name + ": " +translated_message)
+        await message.channel.send(message.author.display_name + ": " + translation)
         
     return
       
@@ -182,8 +187,15 @@ class Defender(commands.Cog, name="Defender"):
   
   @commands.command("check-grammar", brief="Check grammar", help="Check the grammar of a given text.")
   async def grammar_check(self, ctx: Context, *, text: str = ""):
-    response = self.gpt.grammar_check(text)
-    await ctx.send(response)
+    if ctx.channel.id not in self.filter_channels:
+      verdict, justification = self.content_filter(text)
+      if verdict == "False":
+        response = self.gpt.grammar_check(text)
+        await ctx.send(response)
+        return
+    else:
+      response = self.gpt.grammar_check(text)
+      await ctx.send(response)
     
   @commands.command("togglefilter", brief="Toggle the filter", help="Toggle the filter on the current channel")
   async def toggle_filter(self, ctx: Context):

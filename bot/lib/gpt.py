@@ -131,7 +131,7 @@ class Gpt:
       model="gpt-3.5-turbo",
       response_format={ "type": "json_object" },
       messages=[
-        {"role": "system", "content": "You are a translator. If the phrase given to you contains non-English words, translate those words and return a JSON with two keys: the first key is isEnglish and evaluates to False and the second key is the translation and evaluates to the translated phrase. As an example, if I say 'What a lovely nuit', you should say return: \{isEnglish:False, translation: what a lovely night\}, and if the sentence is already in English, you put nothing in the translation key and True in isEnglish."},
+        {"role": "system", "content": "You are a translator. Your answer must be a json with at least a isEnglish key. If the phrase given to you contains non-English words, translate those words and return a JSON with two keys: the first key is isEnglish and evaluates to False and the second key is the translation and evaluates to the translated phrase. As an example, if I say 'What a lovely nuit', you should say return: \{isEnglish:False, translation: what a lovely night\}, and if the sentence has only English words, you put nothing in the translation key and True in isEnglish key."},
         {"role": "user", "content": text}
       ]
     )
