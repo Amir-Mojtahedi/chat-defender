@@ -49,14 +49,19 @@ class Defender(commands.Cog, name="Defender"):
     
     cursor.execute(query)
     self.filter_channels.remove(channel_id)
+
+    return
     
-    translation_query = f"DELETE FROM TranslationChannels WHERE channel_id = {channel_id}"
+  def _remove_translation_cache(self, channel_id): 
+    cursor = self.client.db.cursor()
     
-    cursor.execute(translation_query)
+    query = f"DELETE FROM TranslationChannels WHERE channel_id = {channel_id}"
+    
+    cursor.execute(query)
     self.translation_channels.remove(channel_id)
     
     return
-    
+  
   def _append_cache(self, channel_id):
     
     cursor = self.client.db.cursor()
@@ -66,16 +71,23 @@ class Defender(commands.Cog, name="Defender"):
     cursor.execute(query)
     self.filter_channels.append(channel_id)
     
-    translation_query = f"INSERT INTO TranslationChannels (channel_id) VALUES ('{channel_id}')"
-    
-    cursor.execute(translation_query)
-    self.translation_channels.append(channel_id)
-    
     return
+  
+  def _append_translation_cache(self, channel_id):
+      
+      cursor = self.client.db.cursor()
+      
+      query = f"INSERT INTO TranslationChannels (channel_id) VALUES ('{channel_id}')"
+      
+      cursor.execute(query)
+      self.translation_channels.append(channel_id)
+      
+      return
     
   # Returns true if the content should be filtered and false if it should not.
   def content_filter(self, message):
     verdict, justification = self.gpt.is_hate_speech(message)
+    return verdict, justification
     
   @commands.Cog.listener()
   async def on_message(self, message: Message):
@@ -95,12 +107,13 @@ class Defender(commands.Cog, name="Defender"):
       await message.channel.send(translated_message) 
   
     # Check the message content for hate speech
-    hate_speech = self.content_filter(message.content)
+    verdict, justification = self.content_filter(message.content)
 
     # If there is hate speech then simply delete it
-    if (hate_speech):
+    if (verdict == 'True'):
       await message.delete()
-      await message.channel.send(f"{message.author.mention} your message was deleted because it contained hate speech.")
+      mention = message.author.mention  # Mention the person who sent the message
+      await message.channel.send(content=f"{mention}, {justification}")
       
   
     # If there isnt then do nothing.
@@ -182,11 +195,11 @@ class Defender(commands.Cog, name="Defender"):
     channel_id = ctx.channel.id
     
     if channel_id in self.translation_channels:
-      self._remove_cache(channel_id)
+      self._remove_translation_cache(channel_id)
       await ctx.reply('channel is no longer being translated')
       
     else:
-      self._append_cache(channel_id)
+      self._append_translation_cache(channel_id)
       await ctx.reply('channel is now being translated')
   
     return
