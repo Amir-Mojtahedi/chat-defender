@@ -24,6 +24,7 @@ class Defender(commands.Cog, name="Defender"):
     cursor = self.client.db.cursor()
       
     # Get all the saved channels that we're filtereing
+    # I didn't update the name of the tables coz lazy (its 4PM bro)
     query = "SELECT channel_id from FilteredChannels"
     translation_query = "SELECT channel_id from TranslationChannels"
     
@@ -109,7 +110,7 @@ class Defender(commands.Cog, name="Defender"):
         await message.channel.send(content=f"{mention}, {justification}")
         return
     
-    if message.channel.id in self.translation_channels:
+    if message.channel.id not in self.translation_channels:
       # Translate the message
       translated_message = self.gpt.translate_text(message.content) 
       if(translated_message != message.content):
@@ -207,11 +208,11 @@ class Defender(commands.Cog, name="Defender"):
     
     if channel_id in self.translation_channels:
       self._remove_translation_cache(channel_id)
-      await ctx.reply('channel is no longer being translated')
+      await ctx.reply('channel is now being translated')
       
     else:
       self._append_translation_cache(channel_id)
-      await ctx.reply('channel is now being translated')
+      await ctx.reply('channel is no longer being translated')
   
     return
      
