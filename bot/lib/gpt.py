@@ -54,7 +54,6 @@ class Gpt:
     return completion.choices[0].message.content
   
   def detect_fallacy(self, messages: str):
-    print(messages)
     """
     Detects any logical fallacies in the provided messages.
 
