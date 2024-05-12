@@ -136,3 +136,23 @@ class Gpt:
     )
     
     return completion.choices[0].message.content
+  
+  def fact_check(self, text: str):
+    """
+    Checks the facts in the provided text.
+
+    Args:
+        text: The text to be checked.
+
+    Returns:
+        str: The fact-checked text.
+    """
+    completion = self.client.chat.completions.create(
+      model="gpt-3.5-turbo",
+      messages=[
+        {"role": "system", "content": "You are a fact checker. Do you see any factual problem with the provided text?"},
+        {"role": "user", "content": text}
+      ]
+    )
+  
+    return completion.choices[0].message.content

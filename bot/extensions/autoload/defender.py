@@ -117,7 +117,7 @@ class Defender(commands.Cog, name="Defender"):
         await message.channel.send(message.author.display_name + ": " +translated_message)
       
 
-  @commands.command("fallacies")
+  @commands.command("fallacies", brief="Detect fallacies", help="Detect fallacies in the conversation")
   async def detect_fallacy_command(self, ctx: Context):
     # get all the messages in the channel
     channelmessages = ctx.channel.history(limit=100)
@@ -148,7 +148,7 @@ class Defender(commands.Cog, name="Defender"):
     summary = self.gpt.detect_fallacy(summarymessages)
     await ctx.message.reply(summary)
 
-  @commands.command("summarize")
+  @commands.command("summarize", brief="Summarize the conversation", help="Summarize the conversation in the current channel")
   async def summary_command(self, ctx: Context):
   
     # get all the messages in the channel
@@ -173,17 +173,17 @@ class Defender(commands.Cog, name="Defender"):
     
     await ctx.message.reply(summary)
     
-  @commands.command("askgpt")
+  @commands.command("askgpt", brief="Ask GPT a question", help="Ask GPT-3 a question and get a response.")
   async def gpt(self, ctx: Context, *, prompt: str):
         response = self.gpt.ask_gpt(prompt)
         await ctx.reply(response)
   
-  @commands.command("check-grammar")
+  @commands.command("check-grammar", brief="Check grammar", help="Check the grammar of a given text.")
   async def grammar_check(self, ctx: Context, *, text: str = ""):
     response = self.gpt.grammar_check(text)
     await ctx.send(response)
     
-  @commands.command("togglefilter")
+  @commands.command("togglefilter", brief="Toggle the filter", help="Toggle the filter on the current channel")
   async def toggle_filter(self, ctx: Context):
     
     channel_id = ctx.channel.id
@@ -198,7 +198,7 @@ class Defender(commands.Cog, name="Defender"):
   
     return
   
-  @commands.command("toggletranslate")
+  @commands.command("toggletranslate", brief="Toggle the translation", help="Toggle the translation on the current channel")
   async def toggle_translate(self, ctx: Context):
     
     channel_id = ctx.channel.id

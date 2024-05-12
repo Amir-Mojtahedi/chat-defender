@@ -7,9 +7,9 @@ async def hello_world(interaction, message: discord.Message):
 async def fact_check(interaction, message: discord.Message):
   
   # Send the message to the fact checker function
-  fact = 'fact func'
+  fact = interaction.client.gpt.fact_check(message.content)
   
-  await interaction.response.send_message(fact)
+  await interaction.response.send_message(ephemeral = True, content = fact)
 
 async def translate(interaction: discord.Interaction, message: discord.Message):
   
