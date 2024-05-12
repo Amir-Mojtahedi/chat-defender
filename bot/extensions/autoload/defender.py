@@ -93,7 +93,7 @@ class Defender(commands.Cog, name="Defender"):
       totalchars += len(msg.clean_content)
       summarymessages.append(msg)
     
-      if (totalchars >= 1000):
+      if (totalchars >= 4000):
         break
   
     summarymessages = [f"{x.author.display_name}: {x.clean_content} [{x.created_at}]" for x in summarymessages][::-1]
