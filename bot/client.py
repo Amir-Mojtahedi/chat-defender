@@ -4,6 +4,8 @@ from discord.ext import commands
 import datetime
 import discord
 
+from .lib.gpt import Gpt
+
 import sqlite3
 
 
@@ -16,6 +18,9 @@ class ChatDefender(commands.Bot):
     
     # set the database object
     self.db = None
+    
+    # set the gpt object
+    self.gpt = Gpt()
     
     intents = discord.Intents.all()
 

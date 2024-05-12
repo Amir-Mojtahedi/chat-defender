@@ -18,10 +18,35 @@ async def translate(interaction: discord.Interaction, message: discord.Message):
   
   await interaction.response.send_message(ephemeral=True, content=translation)
 
+async def grammar_check(interaction: discord.Interaction, message: discord.Message):
+  
+  # Get the grammar checked version
+  grammar = interaction.client.gpt.grammar_check(message.content)
+  await interaction.response.send_message(ephemeral=True, content=grammar)
+
 async def setup(client):
+  
   hello_context_command = app_commands.ContextMenu(
     name="hello world",
     callback=hello_world
   )
-  client.tree.add_command(hello_context_command)
+  
+  fact_check_cmd = app_commands.ContextMenu(
+    name="Fact Check",
+    callback=fact_check
+  )
+  
+  grammar_check_cmd = app_commands.ContextMenu(
+    name = 'Grammar Check',
+    callback=grammar_check
+  )
+  
+  translate_cmd = app_commands.ContextMenu(
+    name = "Translate",
+    callback = translate
+  )
+  
+  client.tree.add_command(translate_cmd)
+  client.tree.add_command(fact_check_cmd)
+  client.tree.add_command(grammar_check_cmd)
   
