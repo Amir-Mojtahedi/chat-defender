@@ -1,9 +1,9 @@
-from client import ChatDefender
-from  discord.ext import commands
+from ...client import ChatDefender
+from discord.ext import commands
 from discord import Message
 from discord.ext.commands import Context
 
-from lib.gpt import Gpt
+from ...lib.gpt import Gpt
 
 class Defender(commands.Cog, name="Defender"):
   """
@@ -14,10 +14,44 @@ class Defender(commands.Cog, name="Defender"):
     self.client : ChatDefender = client
     self.gpt : Gpt = Gpt()
     # Get all the channels that are setup for chat filtering from the database
+    self._build_cache()
     self.filter_channels = [1238953297352851619]
     
   def _build_cache(self):
-    # cache the
+    
+    cursor = self.client.db.cursor()
+      
+    # Get all the saved channels that we're filtereing
+    query = "SELECT channel_id from FilteredChannels"
+    
+    # excecute
+    cursor.execute(query)    
+
+    channels = cursor.fetchall()
+    self.filter_channels = [int(x[0]) for x in channels]
+  
+    return
+  
+  def _remove_cache(self, channel_id):
+    
+    cursor = self.client.db.cursor()
+    
+    query = f"DELETE FROM FilteredChannels WHERE channel_id = {channel_id}"
+    
+    cursor.execute(query)
+    self.filter_channels.remove(channel_id)
+    
+    return
+    
+  def _append_cache(self, channel_id):
+    
+    cursor = self.client.db.cursor()
+    
+    query = f"INSERT INTO FilteredChannels (channel_id) VALUES ('{channel_id}')"
+    
+    cursor.execute(query)
+    self.filter_channels.append(channel_id)
+    
     return
     
   # Returns true if the content should be filtered and false if it should not.
@@ -70,6 +104,21 @@ class Defender(commands.Cog, name="Defender"):
     
     await ctx.message.reply(summary) 
     
+  @commands.command("togglefilter")
+  async def toggle_filter(self, ctx: Context):
+    
+    channel_id = ctx.channel.id
+    
+    if channel_id in self.filter_channels:
+      self._remove_cache(channel_id)
+      await ctx.reply('channel is no longer being filtered')
+      
+    else:
+      self._append_cache(channel_id)
+      await ctx.reply('channel is now being filtered')
+  
+    return
+     
 async def setup(client: ChatDefender):
   await client.add_cog(Defender(client))
   return

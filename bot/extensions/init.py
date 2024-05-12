@@ -1,5 +1,5 @@
 import os 
-from client import ChatDefender
+from ..client import ChatDefender
 
 async def autoload(client : ChatDefender):
   
@@ -7,7 +7,7 @@ async def autoload(client : ChatDefender):
   
   for ext in exts:
     
-    await client.load_extension(f'extensions.autoload.{ext}')
+    await client.load_extension(f'bot.extensions.autoload.{ext}')
     
   if len(exts) <= 0:
     print("\nNo extensions were automatically loaded.")

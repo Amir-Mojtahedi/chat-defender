@@ -24,13 +24,13 @@ class ChatDefender(commands.Bot):
                      intents=intents)
     
   async def setup_hook(self):
-    await self.load_extension('extensions.init')
+    await self.load_extension('bot.extensions.init')
+    self._db_connect()
     return await super().setup_hook()
     
   def _determine_prefix(self, client, message):
     return '?'
   
   def _db_connect(self):
-    
     self.db = sqlite3.connect('root.db')
     
