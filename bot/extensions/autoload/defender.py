@@ -38,7 +38,7 @@ class Defender(commands.Cog, name="Defender"):
     cursor.execute(translation_query)    
 
     channels = cursor.fetchall()
-    self.translation_channels = [int(x[0]) for x in channels]
+    self.disabled_translation_channels = [int(x[0]) for x in channels]
   
     return
   
@@ -59,7 +59,7 @@ class Defender(commands.Cog, name="Defender"):
     query = f"DELETE FROM TranslationChannels WHERE channel_id = {channel_id}"
     
     cursor.execute(query)
-    self.translation_channels.remove(channel_id)
+    self.disabled_translation_channels.remove(channel_id)
     
     return
   
@@ -81,7 +81,7 @@ class Defender(commands.Cog, name="Defender"):
       query = f"INSERT INTO TranslationChannels (channel_id) VALUES ('{channel_id}')"
       
       cursor.execute(query)
-      self.translation_channels.append(channel_id)
+      self.disabled_translation_channels.append(channel_id)
       
       return
     
@@ -110,7 +110,7 @@ class Defender(commands.Cog, name="Defender"):
         await message.channel.send(content=f"{mention}, {justification}")
         return
     
-    if message.channel.id in self.translation_channels:
+    if message.channel.id not in self.disabled_translation_channels:
       # Translate the message
       translated_message = self.gpt.translate_text(message.content) 
       if(translated_message != message.content):
@@ -204,13 +204,13 @@ class Defender(commands.Cog, name="Defender"):
     
     channel_id = ctx.channel.id
     
-    if channel_id in self.translation_channels:
+    if channel_id in self.disabled_translation_channels:
       self._remove_translation_cache(channel_id)
-      await ctx.reply('channel is no longer being translated')
+      await ctx.reply('channel is now being translated')
       
     else:
       self._append_translation_cache(channel_id)
-      await ctx.reply('channel is now being translated')
+      await ctx.reply('channel is no longer being translated')
   
     return
      
